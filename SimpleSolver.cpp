@@ -38,7 +38,7 @@ void SimpleSolver::prepare() {
         }
     }
 
-     auto set([](int x) {
+    auto set([](int x) {
         return (char)(x + '0');
     });
 
@@ -88,4 +88,14 @@ bool SimpleSolver::isValid() {
         }
     }
     return true;
+}
+
+std::ostream& operator<<(std::ostream& p, const SimpleSolver& solver) {
+    for (int i = 0; i < solver.BOARD_SIZE; ++i) {
+        for (int j = 0; j < solver.BOARD_SIZE; ++j) {
+            p << solver.board_[i][j] << ' ';
+        }
+        p << '\n';
+    }
+    return p;
 }

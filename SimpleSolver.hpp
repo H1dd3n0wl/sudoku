@@ -3,6 +3,7 @@
 #ifndef SIMPLE_SOLVER
 #define SIMPLE_SOLVER
 
+#include <iostream>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -22,6 +23,8 @@ public:
     void prepare();
 
     bool isValid();
+
+    friend std::ostream& operator<<(std::ostream& p, const SimpleSolver& solver);
 
     ~SimpleSolver() {}
 

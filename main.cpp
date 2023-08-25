@@ -15,5 +15,6 @@ int32_t main() {
                                            ,{'.','.','.','4','1','9','.','.','5'}
                                            ,{'.','.','.','.','8','.','.','7','9'}};
     SimpleSolver solver(board);
-    std::cout << boolalpha << solver.isValid() << '\n';
+    solver.prepare();
+    std::cout << solver;
 }
