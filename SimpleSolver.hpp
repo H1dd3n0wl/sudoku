@@ -19,6 +19,8 @@ public:
 
     SimpleSolver(std::vector<std::vector<char>> board);
 
+    void prepare();
+
     bool isValid();
 
     ~SimpleSolver() {}
