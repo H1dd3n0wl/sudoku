@@ -2,19 +2,18 @@
 
 SimpleSolver::SimpleSolver(std::vector<std::vector<char>> board)
     : board_{board},
-      possible_numbers(BOARD_SIZE, std::vector<std::set<int>>(
-                                       BOARD_SIZE, {1, 2, 3, 4, 5, 6, 7, 8, 9})) {}
+      possible_numbers(BOARD_SIZE,
+                       std::vector<std::set<int>>(BOARD_SIZE, {1, 2, 3, 4, 5, 6, 7, 8, 9})) {}
 
 void SimpleSolver::prepare() {
-    auto get([](char c) {
-        return (int)(c - '0');
-    });
+    auto get([](char c) { return (int)(c - '0'); });
 
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if (!isdigit(board_[i][j])) {
                 continue;
             }
+
             int to_remove = get(board_[i][j]);
             for (int x = 0; x < BOARD_SIZE; ++x) {
                 if (!isdigit(board_[x][j])) {
@@ -37,19 +36,58 @@ void SimpleSolver::prepare() {
             }
         }
     }
+}
 
-    auto set([](int x) {
-        return (char)(x + '0');
-    });
+void SimpleSolver::update(int row, int col) {
+    auto get([](char c) { return (int)(c - '0'); });
+
+    auto set([](int x) { return (char)(x + '0'); });
+
+    int to_remove = get(board_[row][col]);
 
     for (int i = 0; i < BOARD_SIZE; ++i) {
-        for (int j = 0; j < BOARD_SIZE; ++j) {
-            if (possible_numbers[i][j].size() == 1u) {
-                board_[i][j] = set(*(std::begin(possible_numbers[i][j])));
+        if (!isdigit(board_[row][i])) {
+            possible_numbers[row][i].erase(to_remove);
+            if (possible_numbers[row][i].size() == 1u) {
+                board_[row][i] = set(*(std::begin(possible_numbers[row][i])));
+                update(row, i);
+            }
+        }
+        if (!isdigit(board_[i][col])) {
+            possible_numbers[i][col].erase(to_remove);
+            if (possible_numbers[i][col].size() == 1u) {
+                board_[i][col] = set(*(std::begin(possible_numbers[i][col])));
+                update(i, col);
             }
         }
     }
 
+    int block_x = (row / 3) * 3 + 1;
+    int block_y = (col / 3) * 3 + 1;
+
+    for (int x = -1; x < 2; ++x) {
+        for (int y = -1; y < 2; ++y) {
+            if (!isdigit(board_[block_x + x][block_y + y])) {
+                possible_numbers[block_x + x][block_y + y].erase(to_remove);
+                if (possible_numbers[block_x + x][block_y + y].size() == 1u) {
+                    board_[block_x + x][block_y + y] =
+                        set(*(std::begin(possible_numbers[block_x + x][block_y + y])));
+                    update(block_x + x, block_y + y);
+                }
+            }
+        }
+    }
+}
+
+void SimpleSolver::solve() {
+    prepare();
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            if (isdigit(board_[i][j])) {
+                update(i, j);
+            }
+        }
+    }
 }
 
 bool SimpleSolver::isValid() {
@@ -89,6 +127,8 @@ bool SimpleSolver::isValid() {
     }
     return true;
 }
+
+std::vector<std::vector<char>> SimpleSolver::getBoard() { return board_; }
 
 std::ostream& operator<<(std::ostream& p, const SimpleSolver& solver) {
     for (int i = 0; i < solver.BOARD_SIZE; ++i) {

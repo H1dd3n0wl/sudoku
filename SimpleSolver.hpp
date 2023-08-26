@@ -22,7 +22,13 @@ public:
 
     void prepare();
 
+    void update(int row, int col);
+
+    void solve();
+
     bool isValid();
+
+    std::vector<std::vector<char>> getBoard();
 
     friend std::ostream& operator<<(std::ostream& p, const SimpleSolver& solver);
 
