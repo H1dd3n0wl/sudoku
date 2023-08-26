@@ -20,8 +20,6 @@ public:
 
     SimpleSolver(std::vector<std::vector<char>> board);
 
-    void prepare();
-
     void update(int row, int col);
 
     void solve();

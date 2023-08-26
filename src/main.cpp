@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#include "SimpleSolver.hpp"
+#include "solvers/SimpleSolver.hpp"
 
 int32_t main() {
     std::vector<std::vector<char>> board = {{'5','3','.','.','7','.','.','.','.'}
@@ -16,6 +16,7 @@ int32_t main() {
                                            ,{'.','.','.','.','8','.','.','7','9'}};
     SimpleSolver solver(board);
     solver.solve();
+    std::cout << solver;
     SimpleSolver newSolver(solver.getBoard());
     std::cout << boolalpha << newSolver.isValid() << '\n';
 }
