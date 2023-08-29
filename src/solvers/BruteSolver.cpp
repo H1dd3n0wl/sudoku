@@ -14,6 +14,18 @@ BruteSolver::BruteSolver(std::vector<std::vector<char>> board)
     }
 }
 
+BruteSolver::BruteSolver(std::string file) : board_(BOARD_SIZE, std::vector<char>(BOARD_SIZE)) {
+    std::ifstream in(file);
+    if (!in.is_open()) {
+        throw 123;
+    }
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            in >> board_[i][j];
+        }
+    }
+}
+
 void BruteSolver::usualUpdate(int row, int col) {
     empty_cells.erase(getIndex(row, col));
     int to_erase = intFromChar(board_[row][col]);
@@ -54,9 +66,7 @@ void BruteSolver::usualUpdate(int row, int col) {
 }
 
 // !!!!!not working yet!!!!!
-void BruteSolver::hardUpdate(int row, int col, int previous_cell) {
-
-}
+void BruteSolver::hardUpdate(int row, int col, int previous_cell) {}
 
 void BruteSolver::solve() {
     for (int i = 0; i < BOARD_SIZE; ++i) {
@@ -68,5 +78,14 @@ void BruteSolver::solve() {
                 return;
             }
         }
+    }
+}
+
+void BruteSolver::printBoard() {
+    for (auto i : board_) {
+        for (auto j : i) {
+            std::cout << j << ' ';
+        }
+        std::cout << '\n';
     }
 }

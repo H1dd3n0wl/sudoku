@@ -6,6 +6,8 @@
 #include <vector>
 #include <ctype.h>
 #include <unordered_set>
+#include <fstream>
+#include <iostream>
 
 class BruteSolver {
 private:
@@ -34,11 +36,14 @@ private:
 
 public:
     BruteSolver(std::vector<std::vector<char>> board);
+    BruteSolver(std::string file);
 
     void usualUpdate(int row, int col);
     void hardUpdate(int row, int col, int previous_cell);
 
     void solve();
+
+    void printBoard();
     
     ~BruteSolver() {}
 };
