@@ -1,5 +1,17 @@
 #include "BruteSolver.hpp"
 
+void BruteSolver::resetChange(int row, int col) {
+    for (auto [cord, erased] : updated_cells[getIndex(row, col)]) {
+        auto [x, y] = getCoordinates(cord);
+        if (isdigit(board_[x][y])) {
+            board_[x][y] = '.';
+            empty_cells.insert(getIndex(x, y));
+        }
+        possible_nums[x][y].insert(erased);
+    }
+    updated_cells.erase(getIndex(row, col));
+}
+
 BruteSolver::BruteSolver(std::vector<std::vector<char>> board)
     : board_{board},
       possible_nums(BOARD_SIZE,
@@ -16,9 +28,6 @@ BruteSolver::BruteSolver(std::vector<std::vector<char>> board)
 
 BruteSolver::BruteSolver(std::string file) : board_(BOARD_SIZE, std::vector<char>(BOARD_SIZE)) {
     std::ifstream in(file);
-    if (!in.is_open()) {
-        throw 123;
-    }
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             in >> board_[i][j];
@@ -26,7 +35,7 @@ BruteSolver::BruteSolver(std::string file) : board_(BOARD_SIZE, std::vector<char
     }
 }
 
-void BruteSolver::usualUpdate(int row, int col) {
+void BruteSolver::simpleUpdate(int row, int col) {
     empty_cells.erase(getIndex(row, col));
     int to_erase = intFromChar(board_[row][col]);
 
@@ -35,14 +44,14 @@ void BruteSolver::usualUpdate(int row, int col) {
             possible_nums[row][i].erase(to_erase);
             if (possible_nums[row][i].size() == 1u) {
                 board_[row][i] = charFromInt(*(std::begin(possible_nums[row][i])));
-                usualUpdate(row, i);
+                simpleUpdate(row, i);
             }
         }
         if (!isdigit(board_[i][col])) {
             possible_nums[i][col].erase(to_erase);
             if (possible_nums[i][col].size() == 1u) {
                 board_[i][col] = charFromInt(*(std::begin(possible_nums[i][col])));
-                usualUpdate(i, col);
+                simpleUpdate(i, col);
             }
         }
     }
@@ -59,23 +68,108 @@ void BruteSolver::usualUpdate(int row, int col) {
             if (possible_nums[block_x + x][block_y + y].size() == 1u) {
                 board_[block_x + x][block_y + y] =
                     charFromInt(*(std::begin(possible_nums[block_x + x][block_y + y])));
-                usualUpdate(block_x + x, block_y + y);
+                simpleUpdate(block_x + x, block_y + y);
             }
         }
     }
 }
 
-// !!!!!not working yet!!!!!
-void BruteSolver::hardUpdate(int row, int col, int previous_cell) {}
+bool BruteSolver::update(int row, int col) {
+    for (auto num : possible_nums[row][col]) {
+        board_[row][col] = charFromInt(num);
+        if (hardUpdate(row, col)) {
+            return true;
+        } else {
+            resetChange(row, col);
+        }
+    }
+    return false;
+}
+
+bool BruteSolver::hardUpdate(int row, int col) {
+    int cord = getIndex(row, col);
+    std::vector<int> local_stack;
+    local_stack.push_back(cord);
+    while (!local_stack.empty()) {
+        auto [r, c] = getCoordinates(local_stack.back());
+        int to_erase = intFromChar(board_[r][c]);
+        local_stack.pop_back();
+        for (int i = 0; i < BOARD_SIZE; ++i) {
+            if (!isdigit(board_[r][i])) {
+                if (possible_nums[r][i].find(to_erase) != std::end(possible_nums[r][i])) {
+                    possible_nums[r][i].erase(to_erase);
+                    updated_cells[cord].emplace_back(getIndex(r, i), to_erase);
+                    if (possible_nums[r][i].size() == 1u) {
+                        board_[r][i] = charFromInt(*(std::begin(possible_nums[r][i])));
+                        empty_cells.erase(getIndex(r, i));
+                        local_stack.push_back(getIndex(r, i));
+                    } else if (possible_nums[i][c].size() == 0u) {
+                        return false;
+                    }
+                }
+            }
+
+            if (!isdigit(board_[i][c])) {
+                if (possible_nums[i][c].find(to_erase) != std::end(possible_nums[i][c])) {
+                    possible_nums[i][c].erase(to_erase);
+                    updated_cells[cord].emplace_back(getIndex(i, c), to_erase);
+                    if (possible_nums[i][c].size() == 1u) {
+                        board_[i][c] = charFromInt(*(std::begin(possible_nums[i][c])));
+                        empty_cells.erase(getIndex(i, c));
+                        local_stack.push_back(getIndex(i, c));
+                    } else if (possible_nums[i][c].size() == 0u) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        int block_x = (r / 3) * 3 + 1;
+        int block_y = (c / 3) * 3 + 1;
+
+        for (int x = -1; x < 2; ++x) {
+            for (int y = -1; y < 2; ++y) {
+                if (isdigit(board_[block_x + x][block_y + y])) {
+                    continue;
+                }
+                if (possible_nums[block_x + x][block_y + y].find(to_erase) ==
+                    std::end(possible_nums[block_x + x][block_y + y])) {
+                    continue;
+                }
+                possible_nums[block_x + x][block_y + y].erase(to_erase);
+                updated_cells[cord].emplace_back(getIndex(block_x + x, block_y + y), to_erase);
+                if (possible_nums[block_x + x][block_y + y].size() == 1u) {
+                    board_[block_x + x][block_y + y] =
+                        charFromInt(*(std::begin(possible_nums[block_x + x][block_y + y])));
+                    empty_cells.erase(getIndex(block_x + x, block_y + y));
+                    local_stack.push_back(getIndex(block_x + x, block_y + y));
+                } else if (possible_nums[block_x + x][block_y + y].size() == 0u) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
 void BruteSolver::solve() {
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if (isdigit(board_[i][j])) {
-                usualUpdate(i, j);
+                simpleUpdate(i, j);
             }
             if (!needToSolve()) {
                 return;
+            }
+        }
+    }
+
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            if (!isdigit(board_[i][j])) {
+                if (!update(i, j)) {
+                    return;
+                }
             }
         }
     }

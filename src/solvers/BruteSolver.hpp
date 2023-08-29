@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctype.h>
 #include <unordered_set>
+#include <unordered_map>
 #include <fstream>
 #include <iostream>
 
@@ -18,6 +19,9 @@ private:
     std::vector<std::vector<std::unordered_set<int>>> possible_nums;
 
     std::unordered_set<int> empty_cells;
+
+    std::unordered_map<int, std::vector<std::pair<int, int>>> updated_cells; 
+    std::vector<int> cells_stack;
 
     char charFromInt(int x) {
         return (char)(x + '0');
@@ -34,12 +38,15 @@ private:
 
     bool needToSolve() { return !empty_cells.empty(); }
 
+    void resetChange(int row, int col);
+
 public:
     BruteSolver(std::vector<std::vector<char>> board);
     BruteSolver(std::string file);
 
-    void usualUpdate(int row, int col);
-    void hardUpdate(int row, int col, int previous_cell);
+    void simpleUpdate(int row, int col);
+    bool update(int row, int col);
+    bool hardUpdate(int row, int col);
 
     void solve();
 
