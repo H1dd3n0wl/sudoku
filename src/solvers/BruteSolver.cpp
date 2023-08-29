@@ -26,7 +26,7 @@ BruteSolver::BruteSolver(std::vector<std::vector<char>> board)
     }
 }
 
-BruteSolver::BruteSolver(std::string file) : board_(BOARD_SIZE, std::vector<char>(BOARD_SIZE)) {
+BruteSolver::BruteSolver(const std::string& file) : board_(BOARD_SIZE, std::vector<char>(BOARD_SIZE)) {
     std::ifstream in(file);
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
@@ -103,7 +103,7 @@ bool BruteSolver::hardUpdate(int row, int col) {
                         board_[r][i] = charFromInt(*(std::begin(possible_nums[r][i])));
                         empty_cells.erase(getIndex(r, i));
                         local_stack.push_back(getIndex(r, i));
-                    } else if (possible_nums[i][c].size() == 0u) {
+                    } else if (possible_nums[i][c].empty()) {
                         return false;
                     }
                 }
@@ -117,7 +117,7 @@ bool BruteSolver::hardUpdate(int row, int col) {
                         board_[i][c] = charFromInt(*(std::begin(possible_nums[i][c])));
                         empty_cells.erase(getIndex(i, c));
                         local_stack.push_back(getIndex(i, c));
-                    } else if (possible_nums[i][c].size() == 0u) {
+                    } else if (possible_nums[i][c].empty()) {
                         return false;
                     }
                 }
@@ -143,7 +143,7 @@ bool BruteSolver::hardUpdate(int row, int col) {
                         charFromInt(*(std::begin(possible_nums[block_x + x][block_y + y])));
                     empty_cells.erase(getIndex(block_x + x, block_y + y));
                     local_stack.push_back(getIndex(block_x + x, block_y + y));
-                } else if (possible_nums[block_x + x][block_y + y].size() == 0u) {
+                } else if (possible_nums[block_x + x][block_y + y].empty()) {
                     return false;
                 }
             }
@@ -167,17 +167,16 @@ void BruteSolver::solve() {
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
             if (!isdigit(board_[i][j])) {
-                if (!update(i, j)) {
-                    return;
-                }
+                update(i, j);
+                return;
             }
         }
     }
 }
 
 void BruteSolver::printBoard() {
-    for (auto i : board_) {
-        for (auto j : i) {
+    for (const auto& i : board_) {
+        for (const auto& j : i) {
             std::cout << j << ' ';
         }
         std::cout << '\n';

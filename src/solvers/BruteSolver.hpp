@@ -42,7 +42,7 @@ private:
 
 public:
     BruteSolver(std::vector<std::vector<char>> board);
-    BruteSolver(std::string file);
+    BruteSolver(const std::string& file);
 
     void simpleUpdate(int row, int col);
     bool update(int row, int col);
