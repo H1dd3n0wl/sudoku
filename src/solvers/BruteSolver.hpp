@@ -15,13 +15,7 @@ private:
 
     std::vector<std::vector<std::unordered_set<int>>> possible_nums;
 
-    std::vector<std::vector<std::unordered_set<int>>> updated_cells;
-
-    std::vector<std::vector<bool>> used_dfs;
-
     std::unordered_set<int> empty_cells;
-
-    std::vector<int> cells_stack;
 
     char charFromInt(int x) {
         return (char)(x + '0');
