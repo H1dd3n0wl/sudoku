@@ -21,7 +21,7 @@ private:
     std::unordered_set<int> empty_cells;
 
     std::unordered_map<int, std::vector<std::pair<int, int>>> updated_cells; 
-    std::vector<int> cells_stack;
+    std::vector<std::pair<int, std::unordered_set<int>>> cells_stack;
 
     char charFromInt(int x) {
         return (char)(x + '0');
@@ -51,6 +51,8 @@ public:
     void solve();
 
     void printBoard();
+
+    std::vector<std::vector<char>> getBoard();
     
     ~BruteSolver() {}
 };

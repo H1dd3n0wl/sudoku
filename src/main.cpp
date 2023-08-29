@@ -16,6 +16,13 @@ int32_t main() {
                                             {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
                                             {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
     BruteSolver solver("resources/in1.txt"s);
-    solver.solve();
     solver.printBoard();
+    solver.solve();
+    SimpleSolver simp(solver.getBoard());
+    solver.printBoard();
+    if (simp.isValid()) {
+        cout << "YOU'VE BEATED IT!!!!! (almost)\n";
+    } else {
+        cout << "nah, nevermind((\n";
+    }
 }
