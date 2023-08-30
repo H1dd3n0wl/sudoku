@@ -81,17 +81,44 @@ void BruteSolver::simpleUpdate(int row, int col) {
     }
 }
 
+void BruteSolver::tryUpdate(int row, int col) {
+    cells_stack.emplace_back(getIndex(row, col), possible_nums[row][col]);
+    while (!cells_stack.empty()) {
+        auto [x, y] = getCoordinates(cells_stack.back().first);
+        if (update(x, y)) {
+            break;
+        } else {
+            possible_nums[x][y] = cells_stack.back().second;
+            cells_stack.pop_back();
+            if (!cells_stack.empty()) {
+                auto [prev_x, prev_y] = getCoordinates(cells_stack.back().first);
+                possible_nums[prev_x][prev_y] = cells_stack.back().second;
+                possible_nums[prev_x][prev_y].erase(intFromChar(board_[prev_x][prev_y]));
+                board_[prev_x][prev_y] = '.';
+            }
+        }
+    }
+}
+
 bool BruteSolver::update(int row, int col) {
     empty_cells.erase(getIndex(row, col));
+    bool goodUpdate = false;
     for (auto num : possible_nums[row][col]) {
         board_[row][col] = charFromInt(num);
         if (hardUpdate(row, col)) {
-            return true;
+            goodUpdate = true;
+            break;
         } else {
             resetChange(row, col);
         }
     }
-    return false;
+    if (goodUpdate) {
+        possible_nums[row][col] = {intFromChar(board_[row][col])};
+    } else {
+        board_[row][col] = '.';
+        empty_cells.insert(getIndex(row, col));
+    }
+    return goodUpdate;
 }
 
 bool BruteSolver::hardUpdate(int row, int col) {
@@ -136,38 +163,11 @@ bool BruteSolver::hardUpdate(int row, int col) {
 }
 
 void BruteSolver::solve() {
-    // for (int i = 0; i < BOARD_SIZE; ++i) {
-    //     for (int j = 0; j < BOARD_SIZE; ++j) {
-    //         if (isdigit(board_[i][j])) {
-    //             simpleUpdate(i, j);
-    //         }
-    //         if (!needToSolve()) {
-    //             return;
-    //         }
-    //     }
-    // }
-
     while (needToSolve()) {
         for (int i = 0; i < BOARD_SIZE; ++i) {
             for (int j = 0; j < BOARD_SIZE; ++j) {
-                if (isdigit(board_[i][j])) {
-                    continue;
-                }
-                cells_stack.emplace_back(getIndex(i, j), possible_nums[i][j]);
-                while (!cells_stack.empty()) {
-                    auto [x, y] = getCoordinates(cells_stack.back().first);
-                    if (update(x, y)) {
-                        break;
-                    } else {
-                        board_[x][y] = '.';
-                        empty_cells.insert(getIndex(x, y));
-                        possible_nums[x][y] = cells_stack.back().second;
-                        cells_stack.pop_back();
-                        if (!cells_stack.empty()) {
-                            auto [prev_x, prev_y] = getCoordinates(cells_stack.back().first);
-                            possible_nums[prev_x][prev_y].erase(intFromChar(board_[prev_x][prev_y]));
-                        }
-                    }
+                if (!isdigit(board_[i][j])) {
+                    tryUpdate(i, j);
                 }
             }
         }

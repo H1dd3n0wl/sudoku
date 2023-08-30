@@ -15,8 +15,8 @@ int32_t main() {
                                             {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
                                             {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
                                             {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
-    BruteSolver solver("resources/in1.txt"s);
-    solver.printBoard();
+    BruteSolver solver("../resources/in1.txt"s);
+    // solver.printBoard();
     solver.solve();
     SimpleSolver simp(solver.getBoard());
     solver.printBoard();

@@ -45,6 +45,7 @@ public:
     BruteSolver(const std::string& file);
 
     void simpleUpdate(int row, int col);
+    void tryUpdate(int row, int col);
     bool update(int row, int col);
     bool hardUpdate(int row, int col);
 
