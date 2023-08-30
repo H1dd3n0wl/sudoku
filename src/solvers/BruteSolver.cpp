@@ -88,13 +88,15 @@ void BruteSolver::tryUpdate(int row, int col) {
         if (update(x, y)) {
             break;
         } else {
-            possible_nums[x][y] = cells_stack.back().second;
+            resetChange(x, y);
             cells_stack.pop_back();
             if (!cells_stack.empty()) {
                 auto [prev_x, prev_y] = getCoordinates(cells_stack.back().first);
                 possible_nums[prev_x][prev_y] = cells_stack.back().second;
                 possible_nums[prev_x][prev_y].erase(intFromChar(board_[prev_x][prev_y]));
                 board_[prev_x][prev_y] = '.';
+                empty_cells.insert(getIndex(prev_x, prev_y));
+                resetChange(prev_x, prev_y);
             }
         }
     }
@@ -113,6 +115,9 @@ bool BruteSolver::update(int row, int col) {
         }
     }
     if (goodUpdate) {
+        for (auto num : possible_nums[row][col]) {
+            updated_cells[getIndex(row, col)].emplace_back(getIndex(row, col), num);
+        }
         possible_nums[row][col] = {intFromChar(board_[row][col])};
     } else {
         board_[row][col] = '.';
